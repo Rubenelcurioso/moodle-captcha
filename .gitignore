@@ -1,0 +1,39 @@
+# OS / filesystem noise
+.DS_Store
+Thumbs.db
+
+# Editor/IDE settings
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Local dependencies (typically provided by the Moodle host project)
+node_modules/
+vendor/
+
+# Test / lint / analysis caches
+.phpunit.result.cache
+.phpcs-cache
+.phpstan.cache
+.psalm.cache
+
+# Local reports / scratch
+coverage/
+.cache/
+tmp/
+
+# Release artifacts
+*.zip
+*.tar.gz
+*.tgz
+
+AGENTS.md
+ROADMAP.md

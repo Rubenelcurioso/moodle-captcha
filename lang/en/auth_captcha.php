@@ -17,34 +17,36 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-$string['pluginname'] = 'Anti-Brute Force Authentication';
-$string['auth_bfdescription'] = 'This authentication method uses BF to verify user credentials against Moodle\'s database with added protection against brute force attacks.';
-$string['auth_bftitle'] = 'Anti-Brute Force Authentication';
+defined('MOODLE_INTERNAL') || die();
 
-// hCaptcha settings
-$string['hcaptchasettings'] = 'hCaptcha Settings';
-$string['hcaptchasettingsinfo'] = 'Configure hCaptcha settings for brute force protection.';
-$string['hcaptcha_site_key'] = 'hCaptcha Site Key';
-$string['hcaptcha_site_key_desc'] = 'The site key from your hCaptcha dashboard.';
-$string['hcaptcha_secret_key'] = 'hCaptcha Secret Key';
-$string['hcaptcha_secret_key_desc'] = 'The secret key from your hCaptcha dashboard.';
+$string['pluginname'] = 'CAPTCHA Login Protection Authentication';
+$string['auth_captchadescription'] = 'Adds CAPTCHA verification and login attempt limits to Moodle authentication.';
+$string['auth_captchatitle'] = 'CAPTCHA Login Protection Authentication';
 
-// Brute force protection settings
-$string['bfsettings'] = 'Brute Force Protection Settings';
-$string['bfsettingsinfo'] = 'Configure protection against brute force attacks';
+// CAPTCHA settings.
+$string['captchasettings'] = 'CAPTCHA Settings';
+$string['captchasettingsinfo'] = 'Configure CAPTCHA credentials for login protection.';
+$string['captcha_site_key'] = 'CAPTCHA Site Key';
+$string['captcha_site_key_desc'] = 'The site key from your CAPTCHA provider.';
+$string['captcha_secret_key'] = 'CAPTCHA Secret Key';
+$string['captcha_secret_key_desc'] = 'The secret key from your CAPTCHA provider.';
+
+// Login protection settings.
+$string['loginprotectionsettings'] = 'Login Protection Settings';
+$string['loginprotectionsettingsinfo'] = 'Configure limits for failed login attempts.';
 $string['max_attempts'] = 'Maximum Login Attempts';
 $string['max_attempts_desc'] = 'Number of failed login attempts before temporary lockout';
 $string['lockout_duration'] = 'Lockout Duration';
 $string['lockout_duration_desc'] = 'Duration of the lockout in seconds';
 
-// Error messages
-$string['error_hcaptcha'] = 'The hCaptcha verification failed. Please try again.';
+// Error messages.
+$string['error_captcha'] = 'The CAPTCHA verification failed. Please try again.';
 $string['error_too_many_attempts'] = 'Too many failed login attempts. Your account has been temporarily locked for {$a} seconds.';
 $string['error_login'] = 'The username or password is incorrect.';
 
-// Custom login form
-$string['entercaptcha'] = 'Please complete the hCaptcha verification';
-$string['pleaseverifycaptcha'] = 'Please complete the hCaptcha verification before logging in';
+// Custom login form.
+$string['entercaptcha'] = 'Please complete the CAPTCHA verification';
+$string['pleaseverifycaptcha'] = 'Please complete the CAPTCHA verification before logging in';
 $string['username'] = 'Username';
 $string['password'] = 'Password';
 $string['login'] = 'Log in';

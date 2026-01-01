@@ -5,9 +5,9 @@
 // This plugin is NOT part of the Moodle core and is provided as is. It is developed independently
 // and must comply with the GNU Public License v3 requirements.
 
-// auth_bf/db/install.php
-function xmldb_auth_bf_install() {
-    set_config('auth', 'bf'); // Set as primary auth method
-    set_config('registerauth', 'bf');
+// auth_captcha/db/install.php
+function xmldb_auth_captcha_install() {
+    set_config('auth', 'captcha'); // Set as primary auth method
+    set_config('registerauth', 'captcha');
     return true;
 }

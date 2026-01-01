@@ -5,14 +5,14 @@
 // This plugin is NOT part of the Moodle core and is provided as is. It is developed independently
 // and must comply with the GNU Public License v3 requirements.
 
-namespace auth_bf\output;
+namespace auth_captcha\output;
 
 defined('MOODLE_INTERNAL') || die();
 
 use plugin_renderer_base;
 
 /**
- * Renderer for auth_bf.
+ * Renderer for auth_captcha.
  */
 class renderer extends plugin_renderer_base {
     /**
@@ -23,6 +23,6 @@ class renderer extends plugin_renderer_base {
      */
     public function render_custom_login(custom_login $page) {
         $data = $page->export_for_template($this);
-        return $this->render_from_template('auth_bf/custom_login', $data);
+        return $this->render_from_template('auth_captcha/custom_login', $data);
     }
 }

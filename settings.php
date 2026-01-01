@@ -21,33 +21,33 @@
 defined('MOODLE_INTERNAL') || die;
 
 if ($ADMIN->fulltree) {
-    // hCaptcha settings.
-    $settings->add(new admin_setting_heading('auth_bf/hcaptchasettings',
-        get_string('hcaptchasettings', 'auth_bf'),
-        get_string('hcaptchasettingsinfo', 'auth_bf')));
+    // CAPTCHA settings.
+    $settings->add(new admin_setting_heading('auth_captcha/captchasettings',
+        get_string('captchasettings', 'auth_captcha'),
+        get_string('captchasettingsinfo', 'auth_captcha')));
 
-    $settings->add(new admin_setting_configtext('auth_bf/hcaptcha_site_key',
-        get_string('hcaptcha_site_key', 'auth_bf'),
-        get_string('hcaptcha_site_key_desc', 'auth_bf'),
+    $settings->add(new admin_setting_configtext('auth_captcha/captcha_site_key',
+        get_string('captcha_site_key', 'auth_captcha'),
+        get_string('captcha_site_key_desc', 'auth_captcha'),
         '', PARAM_TEXT));
 
-    $settings->add(new admin_setting_configtext('auth_bf/hcaptcha_secret_key',
-        get_string('hcaptcha_secret_key', 'auth_bf'),
-        get_string('hcaptcha_secret_key_desc', 'auth_bf'),
+    $settings->add(new admin_setting_configtext('auth_captcha/captcha_secret_key',
+        get_string('captcha_secret_key', 'auth_captcha'),
+        get_string('captcha_secret_key_desc', 'auth_captcha'),
         '', PARAM_TEXT));
 
-    // Anti-brute force settings.
-    $settings->add(new admin_setting_heading('auth_bf/bfsettings',
-        get_string('bfsettings', 'auth_bf'),
-        get_string('bfsettingsinfo', 'auth_bf')));
+    // Login protection settings.
+    $settings->add(new admin_setting_heading('auth_captcha/loginprotectionsettings',
+        get_string('loginprotectionsettings', 'auth_captcha'),
+        get_string('loginprotectionsettingsinfo', 'auth_captcha')));
 
-    $settings->add(new admin_setting_configtext('auth_bf/max_attempts',
-        get_string('max_attempts', 'auth_bf'),
-        get_string('max_attempts_desc', 'auth_bf'),
+    $settings->add(new admin_setting_configtext('auth_captcha/max_attempts',
+        get_string('max_attempts', 'auth_captcha'),
+        get_string('max_attempts_desc', 'auth_captcha'),
         '3', PARAM_INT));
 
-    $settings->add(new admin_setting_configtext('auth_bf/lockout_duration',
-        get_string('lockout_duration', 'auth_bf'),
-        get_string('lockout_duration_desc', 'auth_bf'),
+    $settings->add(new admin_setting_configtext('auth_captcha/lockout_duration',
+        get_string('lockout_duration', 'auth_captcha'),
+        get_string('lockout_duration_desc', 'auth_captcha'),
         '300', PARAM_INT));
 }

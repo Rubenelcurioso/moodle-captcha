@@ -5,7 +5,7 @@
 // This plugin is NOT part of the Moodle core and is provided as is. It is developed independently
 // and must comply with the GNU Public License v3 requirements.
 
-namespace auth_bf\output;
+namespace auth_captcha\output;
 
 defined('MOODLE_INTERNAL') || die();
 

@@ -14,16 +14,16 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * AMD module for hCaptcha integration
+ * AMD module for CAPTCHA integration
  *
- * @module     auth_bf/recaptcha
+ * @module     auth_captcha/captcha
  * @copyright  2025 Your Name <your@email.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 define(['jquery'], function($) {
     return {
         init: function(siteKey) {
-            // Load the hCaptcha script
+            // Load the CAPTCHA provider script
             var script = document.createElement('script');
             script.src = 'https://js.hcaptcha.com/1/api.js';
             script.async = true;

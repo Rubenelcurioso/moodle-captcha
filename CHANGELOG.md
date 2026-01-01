@@ -6,20 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [1.0.0-beta] - 2025-02-27
 
 ### Added
-- Initial release of the Anti-Brute Force Authentication Plugin
-- Core authentication functionality with brute force protection
+- Initial release of the CAPTCHA Login Protection Authentication Plugin
+- Core authentication functionality with CAPTCHA verification and login attempt limits
 - Custom login page renderer
-- Installation script to set Anti-Brute Force as primary authentication method
+- Installation script to set CAPTCHA Login Protection as primary authentication method
 - Language support for English
 
 ### Changed
 - Updated plugin maturity from ALPHA to BETA status
-- Renamed plugin from "BF Authentication" to "Anti-Brute Force Authentication" for clarity
+- Renamed plugin to "CAPTCHA Login Protection Authentication" for clarity
 - Updated all PHP files to clearly indicate external plugin status and GPL v3 licensing
 - Improved README.md with clearer navigation instructions
 
 ### Security
-- Implemented anti-brute force protection measures
+- Implemented CAPTCHA verification and login attempt limits
 - Added proper GPL v3 license notices across all files
 - Clear indication of external plugin status for security transparency
 

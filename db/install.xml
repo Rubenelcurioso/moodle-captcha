@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="auth/bf/db" VERSION="20250217" COMMENT="XMLDB file for Moodle auth/bf plugin"
+<XMLDB PATH="auth/captcha/db" VERSION="20250217" COMMENT="XMLDB file for Moodle auth/captcha plugin"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
     <TABLES>
-        <TABLE NAME="auth_bf_attempts" COMMENT="Stores failed login attempts">
+        <TABLE NAME="auth_captcha_attempts" COMMENT="Stores failed login attempts">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
                 <FIELD NAME="username" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false"/>

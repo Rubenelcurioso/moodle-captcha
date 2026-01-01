@@ -24,31 +24,31 @@ require_once($CFG->libdir.'/authlib.php');
 require_once($CFG->libdir.'/filelib.php');
 
 /**
- * Authentication Plugin for BF authentication with hCaptcha and brute force protection.
+ * Authentication plugin for CAPTCHA login protection.
  */
-class auth_plugin_bf extends auth_plugin_base {
+class auth_plugin_captcha extends auth_plugin_base {
     /**
      * Constructor.
      */
     public function __construct() {
-        $this->authtype = 'bf';
-        $this->config = get_config('auth_bf');
+        $this->authtype = 'captcha';
+        $this->config = get_config('auth_captcha');
     }
 
     /**
-     * Verify hCaptcha response.
+     * Verify CAPTCHA response.
      *
-     * @param string $response The hCaptcha response from the form
+     * @param string $response The CAPTCHA response from the form
      * @return bool True if verification successful, false otherwise
      */
-    private function verify_hcaptcha($response) {
-        if (empty($this->config->hcaptcha_secret_key)) {
+    private function verify_captcha($response) {
+        if (empty($this->config->captcha_secret_key)) {
             return false; // Skip verification if not configured
         }
 
         $url = 'https://hcaptcha.com/siteverify';
         $data = [
-            'secret' => $this->config->hcaptcha_secret_key,
+            'secret' => $this->config->captcha_secret_key,
             'response' => $response
         ];
 
@@ -77,7 +77,7 @@ class auth_plugin_bf extends auth_plugin_base {
         $max_attempts = empty($this->config->max_attempts) ? 5 : $this->config->max_attempts;
         $lockout_duration = empty($this->config->lockout_duration) ? 300 : $this->config->lockout_duration;
 
-        $attempts = $DB->get_record('auth_bf_attempts', ['username' => $username]);
+        $attempts = $DB->get_record('auth_captcha_attempts', ['username' => $username]);
         
         if (!$attempts) {
             return false;
@@ -89,7 +89,7 @@ class auth_plugin_bf extends auth_plugin_base {
                 return $lockout_duration - $time_passed;
             }
             // Reset attempts after lockout period
-            $DB->delete_records('auth_bf_attempts', ['username' => $username]);
+            $DB->delete_records('auth_captcha_attempts', ['username' => $username]);
         }
 
         return false;
@@ -103,18 +103,18 @@ class auth_plugin_bf extends auth_plugin_base {
     private function record_failed_attempt($username) {
         global $DB;
 
-        $attempt = $DB->get_record('auth_bf_attempts', ['username' => $username]);
+        $attempt = $DB->get_record('auth_captcha_attempts', ['username' => $username]);
         
         if ($attempt) {
             $attempt->count++;
             $attempt->last_attempt = time();
-            $DB->update_record('auth_bf_attempts', $attempt);
+            $DB->update_record('auth_captcha_attempts', $attempt);
         } else {
             $attempt = new stdClass();
             $attempt->username = $username;
             $attempt->count = 1;
             $attempt->last_attempt = time();
-            $DB->insert_record('auth_bf_attempts', $attempt);
+            $DB->insert_record('auth_captcha_attempts', $attempt);
         }
     }
 
@@ -131,33 +131,36 @@ class auth_plugin_bf extends auth_plugin_base {
 
         // Check for lockout
         if ($lockout = $this->check_lockout($username)) {
-            throw new moodle_exception('error_too_many_attempts', 'auth_bf', '', $lockout);
+            throw new moodle_exception('error_too_many_attempts', 'auth_captcha', '', $lockout);
         }
         
         $user = $DB->get_record('user', array('username' => $username, 'mnethostid' => $CFG->mnet_localhost_id));
 
         if ($user) {
-            // Check if hCaptcha is enabled
-            $hcaptcha_enabled = !empty($this->config->hcaptcha_site_key) and !empty($this->config->hcaptcha_secret_key);
+            // Check if CAPTCHA is enabled
+            $captcha_enabled = !empty($this->config->captcha_site_key) and !empty($this->config->captcha_secret_key);
             
-            // Get hCaptcha response from the form submission
-            $captcha_response = optional_param('h-captcha-response', '', PARAM_RAW);
+            // Get CAPTCHA response from the form submission
+            $captcha_response = optional_param('captcha-response', '', PARAM_RAW);
+            if ($captcha_response === '') {
+                $captcha_response = optional_param('h-captcha-response', '', PARAM_RAW);
+            }
             
             // Verify captcha if enabled
             $captcha_verified = true; // Default to true if captcha is not enabled
-            if ($hcaptcha_enabled) {
-                $captcha_verified = $this->verify_hcaptcha($captcha_response);
+            if ($captcha_enabled) {
+                $captcha_verified = $this->verify_captcha($captcha_response);
                 if (!$captcha_verified) {
                     // Failed captcha verification
                     $this->record_failed_attempt($username);
-                    throw new moodle_exception('error_hcaptcha', 'auth_bf');
+                    throw new moodle_exception('error_captcha', 'auth_captcha');
                 }
             }
 
             // Check password
             if (validate_internal_user_password($user, $password) and $captcha_verified) {
                 // Reset failed attempts on successful login
-                $DB->delete_records('auth_bf_attempts', ['username' => $username]);
+                $DB->delete_records('auth_captcha_attempts', ['username' => $username]);
                 return true;
             }
         }
@@ -203,7 +206,7 @@ class auth_plugin_bf extends auth_plugin_base {
         global $OUTPUT, $PAGE, $SESSION;
 
         // If user is already logged in, no need to modify the login page
-        if (isloggedin() || !empty($SESSION->auth_bf_captcha_verified)) {
+        if (isloggedin() || !empty($SESSION->auth_captcha_verified)) {
             return;
         }
 
@@ -211,7 +214,7 @@ class auth_plugin_bf extends auth_plugin_base {
         $PAGE->requires->js_amd_inline("
             require(['jquery'], function($) {
                 $(document).ready(function() {
-                    // Load hCaptcha script if needed
+                    // Load CAPTCHA script if needed
                     if (typeof hcaptcha === 'undefined') {
                         var script = document.createElement('script');
                         script.src = 'https://js.hcaptcha.com/1/api.js';
@@ -220,28 +223,28 @@ class auth_plugin_bf extends auth_plugin_base {
                         document.head.appendChild(script);
                     }
                     
-                    // Add captcha before the login button
-                    var captchaKey = '".(isset($this->config->hcaptcha_site_key) ? $this->config->hcaptcha_site_key : '')."';
+                    // Add CAPTCHA before the login button
+                    var captchaKey = '".(isset($this->config->captcha_site_key) ? $this->config->captcha_site_key : '')."';
                     if (captchaKey) {
-                        var captchaDiv = $('<div class=\"form-group\"><label>" . get_string('entercaptcha', 'auth_bf') . "</label><div class=\"h-captcha\" data-sitekey=\"' + captchaKey + '\"></div></div>');
+                        var captchaDiv = $('<div class=\"form-group\"><label>" . get_string('entercaptcha', 'auth_captcha') . "</label><div class=\"h-captcha\" data-sitekey=\"' + captchaKey + '\"></div></div>');
                         $('#login #loginbtn').closest('.form-group').before(captchaDiv);
                         
-                        // Ensure form submission checks captcha
+                        // Ensure form submission checks CAPTCHA
                         $('#login').submit(function(e) {
                             if (typeof hcaptcha !== 'undefined') {
-                                var hcaptchaResponse = hcaptcha.getResponse();
-                                if (hcaptchaResponse.length === 0) {
+                                var captchaResponse = hcaptcha.getResponse();
+                                if (captchaResponse.length === 0) {
                                     e.preventDefault();
-                                    alert('" . get_string('pleaseverifycaptcha', 'auth_bf') . "');
+                                    alert('" . get_string('pleaseverifycaptcha', 'auth_captcha') . "');
                                     return false;
                                 }
                                 
-                                // Add the hCaptcha response to the form if not already present
-                                if ($('#login input[name=\"h-captcha-response\"]').length === 0) {
+                                // Add the CAPTCHA response to the form if not already present
+                                if ($('#login input[name=\"captcha-response\"]').length === 0) {
                                     $('<input>').attr({
                                         type: 'hidden',
-                                        name: 'h-captcha-response',
-                                        value: hcaptchaResponse
+                                        name: 'captcha-response',
+                                        value: captchaResponse
                                     }).appendTo('#login');
                                 }
                             }

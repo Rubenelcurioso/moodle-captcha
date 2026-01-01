@@ -7,8 +7,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2025021700;        // The current plugin version (Date: YYYYMMDDXX)
+$plugin->version   = 2025021800;        // The current plugin version (Date: YYYYMMDDXX)
 $plugin->requires  = 2023100900;        // Requires this Moodle version
-$plugin->component = 'auth_bf';         // Full name of the plugin
+$plugin->component = 'auth_captcha';         // Full name of the plugin
 $plugin->maturity  = MATURITY_BETA;    // MATURITY_ALPHA, MATURITY_BETA, MATURITY_RC or MATURITY_STABLE
 $plugin->release   = '0.1.0';           // Human-readable version name
