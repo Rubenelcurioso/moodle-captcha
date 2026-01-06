@@ -66,18 +66,41 @@ class auth_plugin_captcha extends auth_plugin_base {
     }
 
     /**
-     * Check if user is locked out due to too many failed attempts.
+     * Get the client IP address for rate limiting.
      *
-     * @param string $username The username to check
+     * @return string
+     */
+    private function get_client_ip(): string {
+        $ip = getremoteaddr();
+        if (!is_string($ip)) {
+            return '';
+        }
+
+        $ip = trim($ip);
+        if ($ip === '' || $ip === '0.0.0.0') {
+            return '';
+        }
+
+        return $ip;
+    }
+
+    /**
+     * Check if IP is locked out due to too many failed attempts.
+     *
+     * @param string $ip The client IP to check
      * @return bool|int False if not locked out, lockout remaining time in seconds if locked
      */
-    private function check_lockout($username) {
+    private function check_lockout($ip) {
         global $DB;
+
+        if ($ip === '') {
+            return false;
+        }
 
         $max_attempts = empty($this->config->max_attempts) ? 5 : $this->config->max_attempts;
         $lockout_duration = empty($this->config->lockout_duration) ? 300 : $this->config->lockout_duration;
 
-        $attempts = $DB->get_record('auth_captcha_attempts', ['username' => $username]);
+        $attempts = $DB->get_record('auth_captcha_attempts', ['ip' => $ip]);
         
         if (!$attempts) {
             return false;
@@ -89,7 +112,7 @@ class auth_plugin_captcha extends auth_plugin_base {
                 return $lockout_duration - $time_passed;
             }
             // Reset attempts after lockout period
-            $DB->delete_records('auth_captcha_attempts', ['username' => $username]);
+            $DB->delete_records('auth_captcha_attempts', ['ip' => $ip]);
         }
 
         return false;
@@ -98,12 +121,16 @@ class auth_plugin_captcha extends auth_plugin_base {
     /**
      * Record failed login attempt.
      *
-     * @param string $username The username that failed to login
+     * @param string $ip The client IP address
      */
-    private function record_failed_attempt($username) {
+    private function record_failed_attempt($ip) {
         global $DB;
 
-        $attempt = $DB->get_record('auth_captcha_attempts', ['username' => $username]);
+        if ($ip === '') {
+            return;
+        }
+
+        $attempt = $DB->get_record('auth_captcha_attempts', ['ip' => $ip]);
         
         if ($attempt) {
             $attempt->count++;
@@ -111,7 +138,7 @@ class auth_plugin_captcha extends auth_plugin_base {
             $DB->update_record('auth_captcha_attempts', $attempt);
         } else {
             $attempt = new stdClass();
-            $attempt->username = $username;
+            $attempt->ip = $ip;
             $attempt->count = 1;
             $attempt->last_attempt = time();
             $DB->insert_record('auth_captcha_attempts', $attempt);
@@ -129,8 +156,10 @@ class auth_plugin_captcha extends auth_plugin_base {
     public function user_login($username, $password) {
         global $CFG, $DB, $SESSION, $PAGE;
 
+        $ip = $this->get_client_ip();
+
         // Check for lockout
-        if ($lockout = $this->check_lockout($username)) {
+        if ($lockout = $this->check_lockout($ip)) {
             throw new moodle_exception('error_too_many_attempts', 'auth_captcha', '', $lockout);
         }
         
@@ -138,7 +167,7 @@ class auth_plugin_captcha extends auth_plugin_base {
 
         if ($user) {
             // Check if CAPTCHA is enabled
-            $captcha_enabled = !empty($this->config->captcha_site_key) and !empty($this->config->captcha_secret_key);
+            $captcha_enabled = !empty($this->config->captcha_site_key) && !empty($this->config->captcha_secret_key);
             
             // Get CAPTCHA response from the form submission
             $captcha_response = optional_param('captcha-response', '', PARAM_RAW);
@@ -152,7 +181,7 @@ class auth_plugin_captcha extends auth_plugin_base {
                 $captcha_verified = $this->verify_captcha($captcha_response);
                 if (!$captcha_verified) {
                     // Failed captcha verification
-                    $this->record_failed_attempt($username);
+                    $this->record_failed_attempt($ip);
                     throw new moodle_exception('error_captcha', 'auth_captcha');
                 }
             }
@@ -160,13 +189,13 @@ class auth_plugin_captcha extends auth_plugin_base {
             // Check password
             if (validate_internal_user_password($user, $password) and $captcha_verified) {
                 // Reset failed attempts on successful login
-                $DB->delete_records('auth_captcha_attempts', ['username' => $username]);
+                $DB->delete_records('auth_captcha_attempts', ['ip' => $ip]);
                 return true;
             }
         }
         
         // Record failed attempt
-        $this->record_failed_attempt($username);
+        $this->record_failed_attempt($ip);
         return false;
     }
 
@@ -203,57 +232,23 @@ class auth_plugin_captcha extends auth_plugin_base {
      * This method is called from the login page to add additional elements to the login form
      */
     public function loginpage_hook() {
-        global $OUTPUT, $PAGE, $SESSION;
+        global $PAGE, $SESSION;
 
         // If user is already logged in, no need to modify the login page
         if (isloggedin() || !empty($SESSION->auth_captcha_verified)) {
             return;
         }
 
-        // Add necessary JavaScript and CSS
-        $PAGE->requires->js_amd_inline("
-            require(['jquery'], function($) {
-                $(document).ready(function() {
-                    // Load CAPTCHA script if needed
-                    if (typeof hcaptcha === 'undefined') {
-                        var script = document.createElement('script');
-                        script.src = 'https://js.hcaptcha.com/1/api.js';
-                        script.async = true;
-                        script.defer = true;
-                        document.head.appendChild(script);
-                    }
-                    
-                    // Add CAPTCHA before the login button
-                    var captchaKey = '".(isset($this->config->captcha_site_key) ? $this->config->captcha_site_key : '')."';
-                    if (captchaKey) {
-                        var captchaDiv = $('<div class=\"form-group\"><label>" . get_string('entercaptcha', 'auth_captcha') . "</label><div class=\"h-captcha\" data-sitekey=\"' + captchaKey + '\"></div></div>');
-                        $('#login #loginbtn').closest('.form-group').before(captchaDiv);
-                        
-                        // Ensure form submission checks CAPTCHA
-                        $('#login').submit(function(e) {
-                            if (typeof hcaptcha !== 'undefined') {
-                                var captchaResponse = hcaptcha.getResponse();
-                                if (captchaResponse.length === 0) {
-                                    e.preventDefault();
-                                    alert('" . get_string('pleaseverifycaptcha', 'auth_captcha') . "');
-                                    return false;
-                                }
-                                
-                                // Add the CAPTCHA response to the form if not already present
-                                if ($('#login input[name=\"captcha-response\"]').length === 0) {
-                                    $('<input>').attr({
-                                        type: 'hidden',
-                                        name: 'captcha-response',
-                                        value: captchaResponse
-                                    }).appendTo('#login');
-                                }
-                            }
-                            return true;
-                        });
-                    }
-                });
-            });
-        ");
+        $captcha_key = !empty($this->config->captcha_site_key) ? $this->config->captcha_site_key : '';
+        if (empty($captcha_key)) {
+            return;
+        }
+
+        $PAGE->requires->js_call_amd('auth_captcha/captcha', 'init', [
+            $captcha_key,
+            get_string('entercaptcha', 'auth_captcha'),
+            get_string('pleaseverifycaptcha', 'auth_captcha'),
+        ]);
     }
 
 }

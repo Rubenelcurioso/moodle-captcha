@@ -22,13 +22,55 @@
  */
 define(['jquery'], function($) {
     return {
-        init: function(siteKey) {
-            // Load the CAPTCHA provider script
-            var script = document.createElement('script');
-            script.src = 'https://js.hcaptcha.com/1/api.js';
-            script.async = true;
-            script.defer = true;
-            document.head.appendChild(script);
+        init: function(siteKey, labelText, errorText) {
+            if (!siteKey) {
+                return;
+            }
+
+            $(function() {
+                // Load the CAPTCHA provider script
+                if (typeof hcaptcha === 'undefined') {
+                    var script = document.createElement('script');
+                    script.src = 'https://js.hcaptcha.com/1/api.js';
+                    script.async = true;
+                    script.defer = true;
+                    document.head.appendChild(script);
+                }
+
+                var $loginForm = $('#login');
+                var $loginButtonGroup = $('#login #loginbtn').closest('.form-group');
+                if ($loginForm.length && $loginButtonGroup.length && $loginForm.find('.h-captcha').length === 0) {
+                    var label = labelText || 'CAPTCHA';
+                    var captchaHtml = '<div class="form-group">' +
+                        '<label>' + label + '</label>' +
+                        '<div class="h-captcha" data-sitekey="' + siteKey + '"></div>' +
+                        '</div>';
+                    $loginButtonGroup.before(captchaHtml);
+                }
+
+                $loginForm.off('submit.authCaptcha').on('submit.authCaptcha', function(e) {
+                    if (typeof hcaptcha === 'undefined') {
+                        return true;
+                    }
+
+                    var response = hcaptcha.getResponse();
+                    if (!response || response.length === 0) {
+                        e.preventDefault();
+                        alert(errorText || 'Please complete the CAPTCHA verification before logging in');
+                        return false;
+                    }
+
+                    var $input = $loginForm.find('input[name="captcha-response"]');
+                    if ($input.length === 0) {
+                        $input = $('<input>').attr({
+                            type: 'hidden',
+                            name: 'captcha-response'
+                        }).appendTo($loginForm);
+                    }
+                    $input.val(response);
+                    return true;
+                });
+            });
         }
     };
 });

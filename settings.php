@@ -44,10 +44,15 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configtext('auth_captcha/max_attempts',
         get_string('max_attempts', 'auth_captcha'),
         get_string('max_attempts_desc', 'auth_captcha'),
-        '3', PARAM_INT));
+        '5', PARAM_INT));
 
     $settings->add(new admin_setting_configtext('auth_captcha/lockout_duration',
         get_string('lockout_duration', 'auth_captcha'),
         get_string('lockout_duration_desc', 'auth_captcha'),
         '300', PARAM_INT));
+
+    $settings->add(new admin_setting_configtext('auth_captcha/attempt_retention_days',
+        get_string('attempt_retention_days', 'auth_captcha'),
+        get_string('attempt_retention_days_desc', 'auth_captcha'),
+        '90', PARAM_INT));
 }

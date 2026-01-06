@@ -3,6 +3,19 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Unreleased]
+
+### Added
+- Privacy API provider for login attempt records
+- Scheduled cleanup task for expired login attempts
+- Login attempt retention setting
+
+### Changed
+- Login CAPTCHA integration now uses proper AMD module loading
+- Installation no longer sets the auth method automatically
+- Login rate limiting is now keyed by client IP instead of username
+- Default maximum login attempts increased to 5
+
 ## [1.0.0-beta] - 2025-02-27
 
 ### Added

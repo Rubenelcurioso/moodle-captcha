@@ -5,7 +5,16 @@
 // This plugin is NOT part of the Moodle core and is provided as is. It is developed independently
 // and must comply with the GNU Public License v3 requirements.
 
-// auth_captcha/db/install.php
-function xmldb_auth_captcha_install() {
-    return true;
-}
+defined('MOODLE_INTERNAL') || die();
+
+$tasks = [
+    [
+        'classname' => 'auth_captcha\\task\\cleanup_attempts',
+        'blocking' => 0,
+        'minute' => 'R',
+        'hour' => '3',
+        'day' => '*',
+        'month' => '*',
+        'dayofweek' => '*',
+    ],
+];

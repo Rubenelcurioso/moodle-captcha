@@ -35,9 +35,11 @@ $string['captcha_secret_key_desc'] = 'The secret key from your CAPTCHA provider.
 $string['loginprotectionsettings'] = 'Login Protection Settings';
 $string['loginprotectionsettingsinfo'] = 'Configure limits for failed login attempts.';
 $string['max_attempts'] = 'Maximum Login Attempts';
-$string['max_attempts_desc'] = 'Number of failed login attempts before temporary lockout';
+$string['max_attempts_desc'] = 'Number of failed login attempts per IP address before temporary lockout';
 $string['lockout_duration'] = 'Lockout Duration';
 $string['lockout_duration_desc'] = 'Duration of the lockout in seconds';
+$string['attempt_retention_days'] = 'Attempt Retention (days)';
+$string['attempt_retention_days_desc'] = 'How long to keep failed login attempts. Use 0 to keep indefinitely.';
 
 // Error messages.
 $string['error_captcha'] = 'The CAPTCHA verification failed. Please try again.';
@@ -50,3 +52,12 @@ $string['pleaseverifycaptcha'] = 'Please complete the CAPTCHA verification befor
 $string['username'] = 'Username';
 $string['password'] = 'Password';
 $string['login'] = 'Log in';
+
+// Scheduled tasks.
+$string['task_cleanup_attempts'] = 'Clean up expired login attempts';
+
+// Privacy metadata.
+$string['privacy:metadata:auth_captcha_attempts'] = 'Stores failed login attempts for login protection by IP address.';
+$string['privacy:metadata:auth_captcha_attempts:ip'] = 'The IP address where the failed login attempt originated.';
+$string['privacy:metadata:auth_captcha_attempts:count'] = 'Number of consecutive failed attempts.';
+$string['privacy:metadata:auth_captcha_attempts:last_attempt'] = 'The timestamp of the most recent failed attempt.';

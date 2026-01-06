@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="auth/captcha/db" VERSION="20250217" COMMENT="XMLDB file for Moodle auth/captcha plugin"
+<XMLDB PATH="auth/captcha/db" VERSION="20250301" COMMENT="XMLDB file for Moodle auth/captcha plugin"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -7,7 +7,7 @@
         <TABLE NAME="auth_captcha_attempts" COMMENT="Stores failed login attempts">
             <FIELDS>
                 <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-                <FIELD NAME="username" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false"/>
+                <FIELD NAME="ip" TYPE="char" LENGTH="45" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
                 <FIELD NAME="count" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
                 <FIELD NAME="last_attempt" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
             </FIELDS>
@@ -15,7 +15,7 @@
                 <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
             </KEYS>
             <INDEXES>
-                <INDEX NAME="username" UNIQUE="true" FIELDS="username"/>
+                <INDEX NAME="ip" UNIQUE="true" FIELDS="ip"/>
             </INDEXES>
         </TABLE>
     </TABLES>
